@@ -10,9 +10,6 @@
         @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap');
         body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #fdfaf6; color: #334155; }
         .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .serving-btn.active { background-color: #f59e0b; color: white; border-color: #f59e0b; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="pb-20">
@@ -22,53 +19,44 @@
             <h1 class="text-3xl font-black italic text-orange-500 tracking-tighter">
                 <i class="fa-solid fa-utensils"></i> FRIDGE AI
             </h1>
-            <button onclick="clearAll()" class="text-xs font-bold text-slate-300 hover:text-red-500">全消去</button>
+            <button onclick="location.reload()" class="text-xs font-bold text-slate-300">RELOAD</button>
         </header>
 
-        <!-- カテゴリ別スキャン -->
+        <!-- メインメニュー -->
         <div class="grid grid-cols-3 gap-3 mb-8">
-            <button onclick="openCamera('冷蔵庫')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-blue-100 hover:border-blue-400 active:scale-95 transition-all card-shadow">
+            <button onclick="openCamera('冷蔵庫')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-blue-100 active:scale-95 transition-all card-shadow">
                 <i class="fa-solid fa-box-open text-blue-400 text-xl mb-2"></i>
                 <span class="text-[10px] font-black uppercase">Fridge</span>
             </button>
-            <button onclick="openCamera('冷凍庫')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-cyan-100 hover:border-cyan-400 active:scale-95 transition-all card-shadow">
+            <button onclick="openCamera('冷凍庫')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-cyan-100 active:scale-95 transition-all card-shadow">
                 <i class="fa-solid fa-snowflake text-cyan-400 text-xl mb-2"></i>
                 <span class="text-[10px] font-black uppercase">Freezer</span>
             </button>
-            <button onclick="openCamera('野菜室')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-green-100 hover:border-green-400 active:scale-95 transition-all card-shadow">
+            <button onclick="openCamera('野菜室')" class="flex flex-col items-center p-4 bg-white rounded-3xl border-b-4 border-green-100 active:scale-95 transition-all card-shadow">
                 <i class="fa-solid fa-leaf text-green-400 text-xl mb-2"></i>
                 <span class="text-[10px] font-black uppercase">Veggie</span>
             </button>
         </div>
 
-        <!-- 食材リスト -->
-        <section class="bg-white rounded-[2.5rem] p-6 card-shadow relative min-h-[300px] flex flex-col border border-orange-50">
+        <section class="bg-white rounded-[2.5rem] p-6 card-shadow relative min-h-[400px] flex flex-col border border-orange-50">
             <div id="loading" class="hidden absolute inset-0 bg-white/80 z-10 flex items-center justify-center rounded-[2.5rem]">
                 <i class="fa-solid fa-circle-notch fa-spin text-orange-500 text-3xl"></i>
             </div>
-
-            <div class="flex gap-2 mb-6">
-                <input id="manualInput" type="text" placeholder="食材名を入力..." class="flex-1 bg-slate-100 rounded-2xl px-5 py-3 outline-none text-sm font-bold">
-                <button onclick="addManual()" class="bg-orange-500 text-white w-12 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"><i class="fa-solid fa-plus"></i></button>
+            
+            <div id="itemList" class="flex-1 space-y-2 mb-6 overflow-y-auto max-h-[400px]">
+                <p class="text-center py-20 text-slate-200 font-black italic text-xl uppercase opacity-50">No Items</p>
             </div>
-
-            <div id="itemList" class="flex-1 space-y-2 overflow-y-auto max-h-[350px] custom-scrollbar mb-6"></div>
-
-            <button onclick="getSuggestions()" id="suggestBtn" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 py-4 rounded-2xl font-black text-white shadow-xl shadow-orange-200 active:scale-95 transition-all disabled:opacity-50">
+            
+            <button onclick="getSuggestions()" id="suggestBtn" class="w-full bg-orange-500 py-4 rounded-2xl font-black text-white shadow-xl shadow-orange-200 active:scale-95 transition-all">
                 レシピを提案してもらう！
             </button>
         </section>
-
-        <div id="suggestionArea" class="mt-8 space-y-3 hidden">
-            <p class="text-[10px] font-black text-slate-300 text-center uppercase tracking-[0.2em]">AI Recommended Dishes</p>
-            <div id="suggestionList" class="grid gap-3"></div>
-        </div>
     </div>
 
     <!-- カメラモーダル -->
     <div id="cameraModal" class="fixed inset-0 bg-black z-[300] hidden flex flex-col">
         <video id="video" autoplay playsinline class="flex-1 object-cover"></video>
-        <div class="h-32 bg-white flex justify-around items-center rounded-t-[3rem] px-8">
+        <div class="h-32 bg-white flex justify-around items-center rounded-t-[3rem]">
             <button onclick="closeCamera()" class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400"><i class="fa-solid fa-xmark"></i></button>
             <button onclick="takeShot()" class="w-20 h-20 rounded-full border-4 border-orange-500 bg-white flex items-center justify-center">
                 <div class="w-16 h-16 rounded-full bg-orange-500"></div>
@@ -78,109 +66,34 @@
         <canvas id="canvas" class="hidden"></canvas>
     </div>
 
-    <!-- レシピ詳細モーダル -->
-    <div id="recipeModal" class="fixed inset-0 bg-[#fdfaf6] z-[400] hidden flex flex-col animate-in fade-in duration-200">
-        <header class="p-6 bg-white border-b flex flex-col gap-4">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h2 id="recipeTitle" class="text-2xl font-black text-slate-800 tracking-tight">料理名</h2>
-                    <div class="flex gap-3 mt-1 text-[10px] font-bold text-orange-500 uppercase tracking-widest">
-                        <span id="recipeTime"><i class="fa-regular fa-clock"></i> --分</span>
-                        <span id="recipeDifficulty"><i class="fa-solid fa-fire"></i> --</span>
-                    </div>
-                </div>
-                <button onclick="closeRecipe()" class="p-3 bg-slate-100 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-[10px] font-black text-slate-400 uppercase">Servings:</span>
-                <div class="flex bg-slate-100 p-1 rounded-xl">
-                    <button onclick="changeServings(1)" id="serv-1" class="serving-btn px-4 py-1.5 rounded-lg text-xs font-bold active">1人前</button>
-                    <button onclick="changeServings(2)" id="serv-2" class="serving-btn px-4 py-1.5 rounded-lg text-xs font-bold">2人前</button>
-                    <button onclick="changeServings(4)" id="serv-4" class="serving-btn px-4 py-1.5 rounded-lg text-xs font-bold">4人前</button>
-                </div>
-            </div>
-        </header>
-
-        <div id="recipeContent" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div id="recipeDetail"></div>
-            <!-- チャットセクション -->
-            <div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 pb-10">
-                <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-widest text-center">Ask AI Chef</p>
-                <div id="chatMessages" class="space-y-4 mb-6"></div>
-                <div class="flex gap-2 bg-white p-2 rounded-3xl border shadow-sm">
-                    <input id="chatInput" type="text" placeholder="質問を入力..." class="flex-1 px-4 py-2 text-sm outline-none bg-transparent">
-                    <button onclick="sendChat()" class="bg-orange-500 text-white w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-transform"><i class="fa-solid fa-paper-plane text-sm"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- 🔑 API Key Injection Point ---
-        // GitHub Actions等で "__API__" を実際のキーに置換してデプロイすることを想定
+        // 🚀 GitHub Actionsで書き換えられる場所
         const API_KEY = "__API__"; 
 
         let stock = [];
         let stream = null;
-        let activeDish = "";
-        let activeServings = 1;
-        let currentTarget = "";
+        let currentLoc = "";
 
         async function gemini(prompt, isImage = false, base64 = "") {
-            if (API_KEY === "__API__" || !API_KEY) {
-                console.error("APIキーが設定されていません。GitHub Secretsを確認してください。");
-                alert("APIキーが未設定です。デプロイ設定を確認してください。");
-                return null;
-            }
+            // エラー判定を削除。直接リクエストを飛ばすぜ！
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
             const parts = [{ text: prompt }];
             if (isImage) parts.push({ inlineData: { mimeType: "image/png", data: base64 } });
             
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts }] })
-                });
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-                return data.candidates[0].content.parts[0].text;
-            } catch (e) {
-                console.error("API Error:", e);
-                return null;
-            }
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
         }
-
-        function renderStock() {
-            const list = document.getElementById('itemList');
-            list.innerHTML = stock.length === 0 ? '<div class="text-center py-16 text-slate-300 text-xs font-bold animate-pulse italic">冷蔵庫をスキャンしてください</div>' : 
-                stock.map((item, i) => `
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 card-shadow animate-in slide-in-from-left-2 transition-all">
-                    <span class="text-sm font-bold text-slate-600">${item.name} <span class="text-[9px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full ml-1 font-black uppercase">${item.loc}</span></span>
-                    <button onclick="removeItem(${i})" class="text-slate-200 hover:text-red-400 transition-colors"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
-                </div>`).join('');
-            document.getElementById('suggestBtn').disabled = stock.length === 0;
-        }
-
-        function addManual() {
-            const input = document.getElementById('manualInput');
-            if (!input.value.trim()) return;
-            stock.push({ name: input.value.trim(), loc: 'Manual' });
-            input.value = '';
-            renderStock();
-        }
-
-        function removeItem(i) { stock.splice(i, 1); renderStock(); }
-        function clearAll() { if(confirm("食材をすべて削除しますか？")) { stock = []; renderStock(); document.getElementById('suggestionArea').classList.add('hidden'); } }
 
         async function openCamera(loc) {
-            currentTarget = loc;
-            const modal = document.getElementById('cameraModal');
-            modal.classList.remove('hidden');
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                document.getElementById('video').srcObject = stream;
-            } catch (err) { alert("カメラの起動に失敗しました。"); closeCamera(); }
+            currentLoc = loc;
+            document.getElementById('cameraModal').classList.remove('hidden');
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            document.getElementById('video').srcObject = stream;
         }
 
         function closeCamera() {
@@ -198,98 +111,37 @@
             
             document.getElementById('loading').classList.remove('hidden');
             try {
-                const res = await gemini("画像内の食材名を抽出してJSONで返して。形式: {\"items\": [\"名前\"]}", true, base64);
+                const res = await gemini("画像内の食材名をJSONで抽出して。形式: {\"items\": [\"名前\"]}", true, base64);
                 const data = JSON.parse(res.replace(/```json|```/g, ''));
                 if (data.items) {
-                    data.items.forEach(name => stock.push({ name, loc: currentTarget }));
-                    renderStock();
+                    data.items.forEach(name => stock.push({ name, loc: currentLoc }));
+                    render();
                 }
-            } catch (e) { alert("食材の解析に失敗しました。"); }
+            } catch (e) { console.error(e); }
             document.getElementById('loading').classList.add('hidden');
         }
 
+        function render() {
+            const list = document.getElementById('itemList');
+            if (stock.length === 0) return;
+            list.innerHTML = stock.map((item, i) => `
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-50 card-shadow">
+                    <span class="text-sm font-bold text-slate-600">${item.name}</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded-md font-black uppercase">${item.loc}</span>
+                </div>`).join('');
+        }
+
         async function getSuggestions() {
-            const btn = document.getElementById('suggestBtn');
-            btn.disabled = true; btn.innerText = "献立を作成中...";
+            if (stock.length === 0) return alert("食材をスキャンしてくれ！");
+            const names = stock.map(s => s.name).join('、');
+            alert(names + " を使ったレシピをリクエストするぜ。");
             try {
-                const list = stock.map(s => s.name).join(',');
-                const res = await gemini(`食材 [${list}] を活用したレシピを3つ提案して。JSON形式: {"dishes": [{"name": "料理名", "desc": "説明"}]}`);
-                const data = JSON.parse(res.replace(/```json|```/g, ''));
-                
-                document.getElementById('suggestionArea').classList.remove('hidden');
-                document.getElementById('suggestionList').innerHTML = data.dishes.map(d => `
-                    <button onclick="showRecipe('${d.name}')" class="w-full bg-white p-5 rounded-3xl border-2 border-slate-100 text-left hover:border-orange-400 active:scale-[0.98] transition-all card-shadow group">
-                        <div class="flex justify-between items-center">
-                            <div class="flex-1 pr-4">
-                                <div class="font-black text-slate-700">${d.name}</div>
-                                <div class="text-[10px] text-slate-400 mt-1 line-clamp-1">${d.desc}</div>
-                            </div>
-                            <div class="bg-orange-50 text-orange-500 px-4 py-2 rounded-xl text-[10px] font-black group-hover:bg-orange-500 group-hover:text-white transition-all">作る！</div>
-                        </div>
-                    </button>
-                `).join('');
-                document.getElementById('suggestionArea').scrollIntoView({ behavior: 'smooth' });
-            } catch (e) { alert("提案に失敗しました。"); }
-            btn.disabled = false; btn.innerText = "レシピを提案してもらう！";
-        }
-
-        async function showRecipe(name, update = false) {
-            activeDish = name;
-            document.getElementById('recipeModal').classList.remove('hidden');
-            if (!update) {
-                document.getElementById('recipeTitle').innerText = name;
-                document.getElementById('chatMessages').innerHTML = "";
+                const res = await gemini(`${names} を使った美味しい料理の名前を1つ教えて。`);
+                alert("AIの提案: " + res);
+            } catch (e) {
+                alert("APIリクエストでエラーが出たぜ。キーが正しく置換されてない可能性が高いな。");
             }
-            const detail = document.getElementById('recipeDetail');
-            detail.innerHTML = "<div class='py-20 text-center font-bold text-slate-300 animate-pulse'>AI Chef is writing...</div>";
-            
-            try {
-                const res = await gemini(`料理「${name}」のレシピを「${activeServings}人前」で作成。材料(分量込)と手順をJSONで。JSON形式: {"time": "時間", "diff": "難易度", "ing": ["材料 分量"], "steps": ["手順"]}`);
-                const data = JSON.parse(res.replace(/```json|```/g, ''));
-                document.getElementById('recipeTime').innerHTML = `<i class="fa-regular fa-clock"></i> ${data.time}`;
-                document.getElementById('recipeDifficulty').innerHTML = `<i class="fa-solid fa-fire"></i> ${data.diff}`;
-                detail.innerHTML = `
-                    <section class="mb-10 animate-in fade-in slide-in-from-bottom-2">
-                        <h3 class="text-xs font-black text-orange-500 mb-4 border-b pb-2 flex items-center gap-2"><i class="fa-solid fa-basket-shopping"></i> 材料 (${activeServings}人前)</h3>
-                        <div class="grid grid-cols-2 gap-2">${data.ing.map(i => `<div class="bg-white p-3 rounded-2xl text-[11px] font-bold border border-slate-50 card-shadow">${i}</div>`).join('')}</div>
-                    </section>
-                    <section class="animate-in fade-in slide-in-from-bottom-4">
-                        <h3 class="text-xs font-black text-orange-500 mb-4 border-b pb-2 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> 作り方</h3>
-                        <div class="space-y-4">${data.steps.map((s, i) => `<div class="flex gap-4 p-5 bg-white rounded-3xl border border-slate-50 card-shadow"><span class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 shadow-lg shadow-orange-200">${i+1}</span><p class="text-[11px] font-bold text-slate-600 leading-relaxed">${s}</p></div>`).join('')}</div>
-                    </section>
-                `;
-            } catch (e) { detail.innerHTML = "<p class='text-center text-red-400 font-bold'>レシピの生成に失敗しました。</p>"; }
         }
-
-        function changeServings(n) {
-            activeServings = n;
-            document.querySelectorAll('.serving-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`serv-${n}`).classList.add('active');
-            showRecipe(activeDish, true);
-        }
-
-        async function sendChat() {
-            const input = document.getElementById('chatInput');
-            if (!input.value.trim()) return;
-            const msg = input.value.trim();
-            input.value = "";
-            const box = document.getElementById('chatMessages');
-            box.innerHTML += `<div class="flex justify-end"><div class="bg-slate-800 text-white p-3 px-5 rounded-2xl rounded-tr-none text-[11px] font-bold shadow-lg">${msg}</div></div>`;
-            
-            try {
-                const res = await gemini(`料理「${activeDish}」についての質問: ${msg}\n回答は短く、親切に。`);
-                box.innerHTML += `<div class="flex justify-start animate-in slide-in-from-left-2"><div class="bg-white text-slate-600 p-3 px-5 rounded-2xl rounded-tl-none text-[11px] font-bold border card-shadow">${res}</div></div>`;
-            } catch (e) { box.innerHTML += `<div class="text-center text-[10px] text-red-400 font-bold">通信エラー</div>`; }
-            document.getElementById('recipeContent').scrollTo({ top: box.scrollHeight + 1000, behavior: 'smooth' });
-        }
-
-        function closeRecipe() { document.getElementById('recipeModal').classList.add('hidden'); }
-        
-        // Enterキー対応
-        document.getElementById('manualInput').addEventListener('keypress', e => e.key === 'Enter' && addManual());
-        document.getElementById('chatInput').addEventListener('keypress', e => e.key === 'Enter' && sendChat());
-        
-        renderStock();
     </script>
 </body>
 </html>
